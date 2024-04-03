@@ -3,11 +3,10 @@ from PIL import Image
 import numpy as np
 
 # IMAGE INPUT
-pixels = np.array(Image.open("images/hole.png"))
+pixels = np.array(Image.open("images/disocclusion.png"))
 height, width, channels = pixels.shape
 
 depth = np.array(Image.open("images/depth.png"))
-dHeight, dWidth, dChannels = pixels.shape
 
 newImage = pixels.copy()
 
@@ -58,47 +57,52 @@ for x in range(width):
             # for sourceDiagR in range(x, width):
             #     sourceDiagT = y - 1
             #     if pixels[sourceDiagT][sourceDiagR][3] > 0:
-            #         diagTR = sourceDiagR - x
+            #         diagTR = depth[sourceDiagT][sourceDiagR]
+            #         diagTRPos = sourceDiagR - x
             #         break
             #
             # # Diagonal Top-left
             # for sourceDiagL in range(x, 0, -1):
             #     sourceDiagT = y - 1
             #     if pixels[sourceDiagT][sourceDiagL][3] > 0:
-            #         diagTL = x - sourceDiagL
+            #         diagTL = depth[sourceDiagT][sourceDiagL]
+            #         diagTLPos = x - sourceDiagL
             #         break
             #
             # # Diagonal Bottom-Right
             # for sourceDiagR in range(x, width):
             #     sourceDiagB = y + 1
             #     if pixels[sourceDiagB][sourceDiagR][3] > 0:
-            #         diagBR = sourceDiagR - x
+            #         diagBR = depth[sourceDiagB][sourceDiagR]
+            #         diagBRPos = sourceDiagR - x
             #         break
             #
             # # Diagonal Bottom-Left
             # for sourceDiagL in range(x, 0, -1):
             #     sourceDiagB = y + 1
             #     if pixels[sourceDiagB][sourceDiagL][3] > 0:
-            #         diagBL = x - sourceDiagL
+            #         diagBL = depth[sourceDiagB][sourceDiagL]
+            #         diagBLPos = x - sourceDiagL
             #         break
 
-            minDirection = min([right, left, top, bottom])
-            if right == minDirection:
+
+            minDepth = min(right, left, top, bottom)
+            if right == minDepth:
                 newImage[y][x] = pixels[y][x + rightPos]
-            elif left == minDirection:
+            elif left == minDepth:
                 newImage[y][x] = pixels[y][x - leftPos]
-            elif top == minDirection:
+            elif top == minDepth:
                 newImage[y][x] = pixels[y - topPos][x]
-            elif bottom == minDirection:
+            elif bottom == minDepth:
                 newImage[y][x] = pixels[y + bottomPos][x]
-            # elif diagTR == minDirection:
-            #     newImage[y][x] = pixels[y - diagTL][x + diagTL]
-            # elif diagTL == minDirection:
-            #     newImage[y][x] = pixels[y - diagTL][x - diagTL]
-            # elif diagBR == minDirection:
-            #     newImage[y][x] = pixels[y + diagTL][x + diagTL]
-            # elif diagBL == minDirection:
-            #     newImage[y][x] = pixels[y + diagTL][x - diagTL]
+            # elif diagTR == minDepth:
+            #     newImage[y][x] = pixels[y - diagTLPos][x + diagTLPos]
+            # elif diagTL == minDepth:
+            #     newImage[y][x] = pixels[y - diagTLPos][x - diagTLPos]
+            # elif diagBR == minDepth:
+            #     newImage[y][x] = pixels[y + diagTLPos][x + diagTLPos]
+            # elif diagBL == minDepth:
+            #     newImage[y][x] = pixels[y + diagTLPos][x - diagTLPos]
 
 
 # IMAGE OUTPUT

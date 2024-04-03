@@ -20,10 +20,10 @@ for x in range(width):
             left = sys.maxsize
             top = sys.maxsize
             bottom = sys.maxsize
-            # diagTL = sys.maxsize
-            # diagTR = sys.maxsize
-            # diagBR = sys.maxsize
-            # diagBL = sys.maxsize
+            diagTL = sys.maxsize
+            diagTR = sys.maxsize
+            diagBR = sys.maxsize
+            diagBL = sys.maxsize
 
             # Right
             for sourceX in range(x, width):
@@ -53,40 +53,39 @@ for x in range(width):
                     bottomPos = sourceY - y
                     break
 
-            # # Diagonal Top-Right
-            # for sourceDiagR in range(x, width):
-            #     sourceDiagT = y - 1
-            #     if pixels[sourceDiagT][sourceDiagR][3] > 0:
-            #         diagTR = depth[sourceDiagT][sourceDiagR]
-            #         diagTRPos = sourceDiagR - x
-            #         break
-            #
-            # # Diagonal Top-left
-            # for sourceDiagL in range(x, 0, -1):
-            #     sourceDiagT = y - 1
-            #     if pixels[sourceDiagT][sourceDiagL][3] > 0:
-            #         diagTL = depth[sourceDiagT][sourceDiagL]
-            #         diagTLPos = x - sourceDiagL
-            #         break
-            #
-            # # Diagonal Bottom-Right
-            # for sourceDiagR in range(x, width):
-            #     sourceDiagB = y + 1
-            #     if pixels[sourceDiagB][sourceDiagR][3] > 0:
-            #         diagBR = depth[sourceDiagB][sourceDiagR]
-            #         diagBRPos = sourceDiagR - x
-            #         break
-            #
-            # # Diagonal Bottom-Left
-            # for sourceDiagL in range(x, 0, -1):
-            #     sourceDiagB = y + 1
-            #     if pixels[sourceDiagB][sourceDiagL][3] > 0:
-            #         diagBL = depth[sourceDiagB][sourceDiagL]
-            #         diagBLPos = x - sourceDiagL
-            #         break
+            # Diagonal Top-Right
+            for sourceDiagR in range(x, width):
+                sourceDiagT = y - 1
+                if pixels[sourceDiagT][sourceDiagR][3] > 0:
+                    diagTR = depth[sourceDiagT][sourceDiagR]
+                    diagTRPos = sourceDiagR - x
+                    break
 
+            # Diagonal Top-left
+            for sourceDiagL in range(x, 0, -1):
+                sourceDiagT = y - 1
+                if pixels[sourceDiagT][sourceDiagL][3] > 0:
+                    diagTL = depth[sourceDiagT][sourceDiagL]
+                    diagTLPos = x - sourceDiagL
+                    break
 
-            minDepth = min(right, left, top, bottom)
+            # Diagonal Bottom-Right
+            for sourceDiagR in range(x, width):
+                sourceDiagB = y + 1
+                if pixels[sourceDiagB][sourceDiagR][3] > 0:
+                    diagBR = depth[sourceDiagB][sourceDiagR]
+                    diagBRPos = sourceDiagR - x
+                    break
+
+            # Diagonal Bottom-Left
+            for sourceDiagL in range(x, 0, -1):
+                sourceDiagB = y + 1
+                if pixels[sourceDiagB][sourceDiagL][3] > 0:
+                    diagBL = depth[sourceDiagB][sourceDiagL]
+                    diagBLPos = x - sourceDiagL
+                    break
+
+            minDepth = min(right, left, top, bottom, diagTR, diagTL, diagBR, diagBL)
             if right == minDepth:
                 newImage[y][x] = pixels[y][x + rightPos]
             elif left == minDepth:
@@ -95,14 +94,14 @@ for x in range(width):
                 newImage[y][x] = pixels[y - topPos][x]
             elif bottom == minDepth:
                 newImage[y][x] = pixels[y + bottomPos][x]
-            # elif diagTR == minDepth:
-            #     newImage[y][x] = pixels[y - diagTLPos][x + diagTLPos]
-            # elif diagTL == minDepth:
-            #     newImage[y][x] = pixels[y - diagTLPos][x - diagTLPos]
-            # elif diagBR == minDepth:
-            #     newImage[y][x] = pixels[y + diagTLPos][x + diagTLPos]
-            # elif diagBL == minDepth:
-            #     newImage[y][x] = pixels[y + diagTLPos][x - diagTLPos]
+            elif diagTR == minDepth:
+                newImage[y][x] = pixels[y - diagTRPos][x + diagTRPos]
+            elif diagTL == minDepth:
+                newImage[y][x] = pixels[y - diagTLPos][x - diagTLPos]
+            elif diagBR == minDepth:
+                newImage[y][x] = pixels[y + diagBRPos][x + diagBRPos]
+            elif diagBL == minDepth:
+                newImage[y][x] = pixels[y + diagBLPos][x - diagBLPos]
 
 
 # IMAGE OUTPUT

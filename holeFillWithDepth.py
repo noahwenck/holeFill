@@ -3,7 +3,7 @@ from PIL import Image
 import numpy as np
 
 # IMAGE INPUT
-pixels = np.array(Image.open("images/disocclusion.png"))
+pixels = np.array(Image.open("images/largeDisocclusion/disocclusionLarge.png"))
 height, width, channels = pixels.shape
 
 depth = np.array(Image.open("images/depth.png"))
@@ -55,7 +55,7 @@ for x in range(width):
 
             # Diagonal Top-Right
             for sourceDiagR in range(x, width):
-                sourceDiagT = y - 1
+                sourceDiagT = y - (sourceDiagR - x)
                 if pixels[sourceDiagT][sourceDiagR][3] > 0:
                     diagTR = depth[sourceDiagT][sourceDiagR]
                     diagTRPos = sourceDiagR - x
@@ -63,7 +63,7 @@ for x in range(width):
 
             # Diagonal Top-left
             for sourceDiagL in range(x, 0, -1):
-                sourceDiagT = y - 1
+                sourceDiagT = y - (x - sourceDiagL)
                 if pixels[sourceDiagT][sourceDiagL][3] > 0:
                     diagTL = depth[sourceDiagT][sourceDiagL]
                     diagTLPos = x - sourceDiagL
@@ -71,7 +71,7 @@ for x in range(width):
 
             # Diagonal Bottom-Right
             for sourceDiagR in range(x, width):
-                sourceDiagB = y + 1
+                sourceDiagB = y + (sourceDiagR - x)
                 if pixels[sourceDiagB][sourceDiagR][3] > 0:
                     diagBR = depth[sourceDiagB][sourceDiagR]
                     diagBRPos = sourceDiagR - x
@@ -79,7 +79,7 @@ for x in range(width):
 
             # Diagonal Bottom-Left
             for sourceDiagL in range(x, 0, -1):
-                sourceDiagB = y + 1
+                sourceDiagB = y + (x - sourceDiagL)
                 if pixels[sourceDiagB][sourceDiagL][3] > 0:
                     diagBL = depth[sourceDiagB][sourceDiagL]
                     diagBLPos = x - sourceDiagL
@@ -105,4 +105,4 @@ for x in range(width):
 
 
 # IMAGE OUTPUT
-Image.fromarray(newImage, 'RGBA').save("images/resultDepth.png", 'PNG')
+Image.fromarray(newImage, 'RGBA').save("images/largeDisocclusion/baseDepthResult.png", 'PNG')

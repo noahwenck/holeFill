@@ -1,6 +1,8 @@
+import sys
 from PIL import Image
 import numpy as np
-from binaryPixelSearch import binaryPixelSearch
+from holeFillScripts.binaryPixelSearch import binaryPixelSearch
+sys.path.append('../')
 
 # IMAGE INPUT
 pixels = np.array(Image.open("images/optimized/optimizedBase.png"))

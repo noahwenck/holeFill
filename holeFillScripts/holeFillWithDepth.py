@@ -1,6 +1,7 @@
 import sys
 from PIL import Image
 import numpy as np
+sys.path.append('../')
 
 # IMAGE INPUT
 pixels = np.array(Image.open("images/largeDisocclusion/disocclusionLarge.png"))

@@ -11,7 +11,6 @@ depth = np.array(Image.open("images/depth.png"))
 
 newImage = pixels.copy()
 
-
 for x in range(width):
     for y in range(height):
         # For now, 0 Alpha indicates hole pixel
@@ -88,15 +87,17 @@ for x in range(width):
 
             directionDepth = [right, left, top, bottom, diagTR, diagTL, diagBR, diagBL]
             directionDepth.sort()
-            delta = 0.2
-            frontDepth = directionDepth[0] + (directionDepth[0] * delta)
+            delta = 0.2  # Tolerance Delta
+            frontDepth = directionDepth[7] + (directionDepth[7] * delta)
             midDepth = sys.maxsize
 
+            # Find first direction that is past the depth tolerance
             for direction in directionDepth:
                 if direction > frontDepth:
                     midDepth = direction
                     break
 
+            # If none are past the tolerance, use the farthest depth
             if midDepth == sys.maxsize:
                 midDepth = directionDepth[0]
 
@@ -118,7 +119,6 @@ for x in range(width):
                 newImage[y][x] = pixels[y + diagBRPos][x + diagBRPos]
             elif diagBL == midDepth:
                 newImage[y][x] = pixels[y + diagBLPos][x - diagBLPos]
-
 
 # IMAGE OUTPUT
 Image.fromarray(newImage, 'RGBA').save("images/largeDisocclusion/toleranceDepthResult.png", 'PNG')

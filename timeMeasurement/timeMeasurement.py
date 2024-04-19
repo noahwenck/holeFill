@@ -3,16 +3,45 @@ import sys
 import timeit
 sys.path.append('../')
 
-logFile = open("timeMeasurement/timeMeasurementLog.txt", "a")
+logFile = open("../timeMeasurement/timeMeasurementLog.txt", "a")
 
-numIterations = 100
+numIterations = 200
 
-holeFillWithDepthTimes = timeit.repeat(stmt=open("holeFillScripts/holeFillWithDepth.py").read(), repeat=numIterations, number=1)
-cameraMovementLRTimes = timeit.repeat(stmt=open("holeFillScripts/CameraMovementLeftRight.py").read(), repeat=numIterations, number=1)
-toleranceDepthFillTimes = timeit.repeat(stmt=open("holeFillScripts/toleranceDepthFill.py").read(), repeat=numIterations, number=1)
+setupStatement = """
+import numpy as np
+from PIL import Image
+from scriptFunctions import (depthHoleFill, cameraMovementLeftRight, toleranceDepthFill)
+pixels = np.array(Image.open("../images/largeDisocclusion/largeDisocclusion.png"))
+depth = np.array(Image.open("../images/depth2c.png"))
+"""
 
-logFile.write("\n" + str(datetime.datetime.now()) + " run\n" +
-              str(numIterations) + " iterations (w/o print statements)\n")
+depthHoleFill = """
+depthHoleFill(pixels, depth)
+"""
+
+cameraMovementLeftRight = """
+cameraMovementLeftRight(pixels, depth)
+"""
+
+toleranceDepthFill = """
+toleranceDepthFill(pixels, depth)
+"""
+
+holeFillWithDepthTimes = timeit.repeat(setup=setupStatement,
+                                       stmt=depthHoleFill,
+                                       repeat=numIterations,
+                                       number=1)
+cameraMovementLRTimes = timeit.repeat(setup=setupStatement,
+                                      stmt=cameraMovementLeftRight,
+                                      repeat=numIterations,
+                                      number=1)
+toleranceDepthFillTimes = timeit.repeat(setup=setupStatement,
+                                        stmt=toleranceDepthFill,
+                                        repeat=numIterations,
+                                        number=1)
+
+logFile.write("\n" + str(datetime.datetime.now()) + "\n" +
+              str(numIterations) + " iterations\n")
 
 logFile.write("\n--- Hole Fill with Depth --- \n")
 logFile.write("Min: " + str(min(holeFillWithDepthTimes)) + "\n")

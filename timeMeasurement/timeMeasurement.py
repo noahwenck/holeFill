@@ -2,6 +2,7 @@ import datetime
 import sys
 import timeit
 sys.path.append('../')
+sys.dont_write_bytecode = True
 
 logFile = open("../timeMeasurement/timeMeasurementLog.txt", "a")
 

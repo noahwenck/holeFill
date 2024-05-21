@@ -6,19 +6,23 @@ sys.dont_write_bytecode = True
 
 logFile = open("../timeMeasurement/timeMeasurementLog.txt", "a")
 
-numIterations = 200
+numIterations = 50
 
 # reminder to self to add import new functions in this block
 setupStatement = """
 import numpy as np
 from PIL import Image
-from scriptFunctions import (depthHoleFill, cameraMovementLeftRight, toleranceDepthFill, toleranceAveragedDepthFill)
-pixels = np.array(Image.open("../images/anAutumnAfternoon/largeDisocclusion.png"))
-depth = np.array(Image.open("../images/anAutumnAfternoon/depth/largeDisocclusionDepth.png"))
+from scriptFunctions import (depthHoleFill, noDepthHoleFill, cameraMovementLeftRight, toleranceDepthFill, toleranceAveragedDepthFill)
+pixels = np.array(Image.open("IMAGEPATH"))
+#depth = np.array(Image.open("IMAGEPATH"))
 """
 
 depthHoleFill = """
 depthHoleFill(pixels, depth)
+"""
+
+noDepthHoleFill = """
+noDepthHoleFill(pixels)
 """
 
 cameraMovementLeftRight = """
@@ -37,6 +41,10 @@ holeFillWithDepthTimes = timeit.repeat(setup=setupStatement,
                                        stmt=depthHoleFill,
                                        repeat=numIterations,
                                        number=1)
+holeFillNoDepthTimes = timeit.repeat(setup=setupStatement,
+                                     stmt=noDepthHoleFill,
+                                     repeat=numIterations,
+                                     number=1)
 cameraMovementLRTimes = timeit.repeat(setup=setupStatement,
                                       stmt=cameraMovementLeftRight,
                                       repeat=numIterations,
@@ -54,7 +62,12 @@ logFile.write("\n=========================\n" +
               str(datetime.datetime.now()) + "\n" +
               str(numIterations) + " iterations\n")
 
-logFile.write("\n--- Hole Fill with Depth --- \n")
+logFile.write("\n--- 8-Directional without Depth --- \n")
+logFile.write("Min: " + str(min(holeFillNoDepthTimes)) + "\n")
+logFile.write("Avg: " + str(sum(holeFillNoDepthTimes)/len(holeFillNoDepthTimes)) + "\n")
+logFile.write("Max: " + str(max(holeFillNoDepthTimes)) + "\n")
+
+logFile.write("\n--- 8-Directional with Depth --- \n")
 logFile.write("Min: " + str(min(holeFillWithDepthTimes)) + "\n")
 logFile.write("Avg: " + str(sum(holeFillWithDepthTimes)/len(holeFillWithDepthTimes)) + "\n")
 logFile.write("Max: " + str(max(holeFillWithDepthTimes)) + "\n")

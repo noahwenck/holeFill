@@ -4,7 +4,7 @@ import numpy as np
 sys.path.append('../')
 
 # IMAGE INPUT
-pixels = np.array(Image.open("images/hole.png"))
+pixels = np.array(Image.open("../images/aloe/aloeDisocclusion.png"))
 height, width, channels = pixels.shape
 
 newImage = pixels.copy()
@@ -44,7 +44,35 @@ for x in range(width):
                     bottom = sourceY - y
                     break
 
-            minDirection = min([right, left, top, bottom])
+            # Diagonal Top-Right
+            for sourceDiagR in range(x, width):
+                sourceDiagT = y - (sourceDiagR - x)
+                if pixels[sourceDiagT][sourceDiagR][3] > 0:
+                    diagTR = sourceDiagR - x
+                    break
+
+            # Diagonal Top-left
+            for sourceDiagL in range(x, 0, -1):
+                sourceDiagT = y - (x - sourceDiagL)
+                if pixels[sourceDiagT][sourceDiagL][3] > 0:
+                    diagTL = x - sourceDiagL
+                    break
+
+            # Diagonal Bottom-Right
+            for sourceDiagR in range(x, width):
+                sourceDiagB = y + (sourceDiagR - x)
+                if pixels[sourceDiagB][sourceDiagR][3] > 0:
+                    diagBR = sourceDiagR - x
+                    break
+
+            # Diagonal Bottom-Left
+            for sourceDiagL in range(x, 0, -1):
+                sourceDiagB = y + (x - sourceDiagL)
+                if pixels[sourceDiagB][sourceDiagL][3] > 0:
+                    diagBL = x - sourceDiagL
+                    break
+
+            minDirection = min([right, left, top, bottom, diagBL, diagTL, diagBL, diagTR])
             if right == minDirection:
                 newImage[y][x] = pixels[y][x + right]
             elif left == minDirection:
@@ -53,7 +81,15 @@ for x in range(width):
                 newImage[y][x] = pixels[y - top][x]
             elif bottom == minDirection:
                 newImage[y][x] = pixels[y + bottom][x]
+            elif diagTR == minDirection:
+                newImage[y][x] = pixels[y - diagTR][x + diagTR]
+            elif diagTL == minDirection:
+                newImage[y][x] = pixels[y - diagTL][x - diagTL]
+            elif diagBR == minDirection:
+                newImage[y][x] = pixels[y + diagBR][x + diagBR]
+            elif diagBL == minDirection:
+                newImage[y][x] = pixels[y + diagBL][x - diagBL]
 
 
 # IMAGE OUTPUT
-Image.fromarray(newImage, 'RGBA').save("images/resultNoDepth.png", 'PNG')
+Image.fromarray(newImage, 'RGBA').save("../images/aloe/results/aloe8DirNoDepth.png", 'PNG')

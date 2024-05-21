@@ -1,13 +1,14 @@
 import sys
 from PIL import Image
 import numpy as np
+
 sys.path.append('../')
 
 # IMAGE INPUT
-pixels = np.array(Image.open("../images/anAutumnAfternoon/largeDisocclusion.png"))
+pixels = np.array(Image.open("../images/smokeStacksDisocclusion.png"))
 height, width, channels = pixels.shape
 
-depth = np.array(Image.open("../images/anAutumnAfternoon/depth/depth2c.png"))
+depth = np.array(Image.open("../images/smokeStacksDepth.png"))
 
 newImage = pixels.copy()
 
@@ -15,7 +16,7 @@ for x in range(width):
     for y in range(height):
         # For now, 0 Alpha indicates hole pixel
         if pixels[y][x][3] == 0:
-            print("Filling pixel: (" + str(x) + ", " + str(y) + ")")
+            # print("Filling pixel: (" + str(x) + ", " + str(y) + ")")
             right = sys.maxsize
             left = sys.maxsize
             top = sys.maxsize
@@ -24,6 +25,10 @@ for x in range(width):
             diagTR = sys.maxsize
             diagBR = sys.maxsize
             diagBL = sys.maxsize
+
+            diagBLPos = -1
+            leftPos = -1
+            diagTLPos = -1
 
             # Right
             for sourceX in range(x, width):
@@ -85,7 +90,7 @@ for x in range(width):
                     diagBLPos = x - sourceDiagL
                     break
 
-            delta = 0.3  # Tolerance Delta
+            delta = 0.1  # Tolerance Delta
             # todo: make into one map?
             directionDepth = {
                 "r": right,
@@ -107,33 +112,65 @@ for x in range(width):
                 "t": pixels[y - topPos][x],
                 "tr": pixels[y - diagTRPos][x + diagTRPos]
             }
+            directionDistance = {
+                "r": rightPos,
+                "br": diagBRPos,
+                "b": bottomPos,
+                "bl": diagBLPos,
+                "l": leftPos,
+                "tl": diagTLPos,
+                "t": topPos,
+                "tr": diagTRPos
+            }
 
-            # Find the closest depth
-            frontDepth = -1
+            # Find first closet pixel
+            shortestDirection = sys.maxsize
+            shortestDirectionMapping = "t"
+            for direction in directionDistance.keys():
+                if directionDistance.get(direction) < shortestDirection:
+                    shortestDirection = directionDistance.get(direction)
+                    shortestDirectionMapping = direction
+
+            # Find all pixels that are within our delta of this first pixel
+            firstDepthUpper = directionDepth.get(shortestDirectionMapping) + (
+                    directionDepth.get(shortestDirectionMapping) * delta)
+            firstDepthLower = directionDepth.get(shortestDirectionMapping) - (
+                    directionDepth.get(shortestDirectionMapping) * delta)
+            firstDepthDirections = []
             for direction in directionDepth.keys():
-                currentDepth = directionDepth.get(direction)
-                if currentDepth > frontDepth:
-                    frontDepth = currentDepth
+                if firstDepthLower <= directionDepth.get(direction) < firstDepthUpper:
+                    firstDepthDirections.append(direction)
 
-            # if frontDepth is still -1, cry
+            # Find the next closest pixel, not considering any that are in our first depth range
+            nextShortestDirection = sys.maxsize
+            nextShortestDirectionMapping = "t"
+            for direction in directionDistance.keys():
+                if (direction not in firstDepthDirections and
+                        directionDistance.get(direction) < nextShortestDirection):
+                    nextShortestDirection = directionDistance.get(direction)
+                    nextShortestDirectionMapping = direction
 
-            frontDepth = frontDepth - (frontDepth * delta)
+            # In case all directions are already in firstDepthDirections
+            if nextShortestDirection != sys.maxsize:
 
-            # Find the closest depth that is beyond the tolerance
-            midDepthUpper = -1
-            for direction in directionDepth.keys():
-                currentDepth = directionDepth.get(direction)
-                if midDepthUpper < currentDepth < frontDepth:
-                    midDepthUpper = currentDepth
+                # Find all pixels that are within our delta of this next pixel
+                secondDepthUpper = directionDepth.get(nextShortestDirectionMapping) + (
+                        directionDepth.get(nextShortestDirectionMapping) * delta)
+                secondDepthLower = directionDepth.get(nextShortestDirectionMapping) - (
+                        directionDepth.get(nextShortestDirectionMapping) * delta)
+                secondDepthDirections = []
+                for direction in directionDepth.keys():
+                    if (direction not in firstDepthDirections and
+                            secondDepthLower <= directionDepth.get(direction) <= secondDepthUpper):
+                        secondDepthDirections.append(direction)
 
-            # Gather a list of directions that are within the mid-ground tolerance,
-            # the values of these directions are what we will average
-            directionsToAverage = []
-            midDepthLower = midDepthUpper - (midDepthUpper * delta)
-            for direction in directionDepth.keys():
-                currentDepth = directionDepth.get(direction)
-                if midDepthLower <= currentDepth <= midDepthUpper:
-                    directionsToAverage.append(direction)
+                # Whichever upper limit is highest, use those values for the average
+                if firstDepthUpper < secondDepthUpper:
+                    directionsToAverage = firstDepthDirections
+                else:
+                    directionsToAverage = secondDepthDirections
+            else:
+                directionsToAverage = firstDepthDirections
 
             # this is fine
             averageColor = [0, 0, 0, 0]
@@ -152,6 +189,6 @@ for x in range(width):
             else:
                 # Make red to indicate something went wrong
                 # This may also show that there is no direction that fits within the mid-ground tol
-                newImage[y][x] = [255, 0, 0, 255]
+                newImage[y][x] = [0, 0, 0, 0]
 
-Image.fromarray(newImage, 'RGBA').save("../images/anAutumnAfternoon/results/toleranceAveragedResult.png", 'PNG')
+Image.fromarray(newImage, 'RGBA').save("../images/smokeStacksResultToleranceAveraged.png", "PNG")

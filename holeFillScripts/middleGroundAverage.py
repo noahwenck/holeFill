@@ -5,10 +5,10 @@ import numpy as np
 sys.path.append('../')
 
 # IMAGE INPUT
-pixels = np.array(Image.open("../images/smokeStacksDisocclusion.png"))
+pixels = np.array(Image.open("INSERT_SOURCE_FILENAME"))
 height, width, channels = pixels.shape
 
-depth = np.array(Image.open("../images/smokeStacksDepth.png"))
+depth = np.array(Image.open("INSERT_DEPTH_FILENAME"))
 
 newImage = pixels.copy()
 
@@ -191,4 +191,4 @@ for x in range(width):
                 # This may also show that there is no direction that fits within the mid-ground tol
                 newImage[y][x] = [0, 0, 0, 0]
 
-Image.fromarray(newImage, 'RGBA').save("../images/smokeStacksResultToleranceAveraged.png", "PNG")
+Image.fromarray(newImage, 'RGBA').save("INSERT_RESULT_FILENAME", "PNG")

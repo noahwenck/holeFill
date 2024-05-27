@@ -4,7 +4,7 @@ import numpy as np
 sys.path.append('../')
 
 # IMAGE INPUT
-pixels = np.array(Image.open("../images/aloe/aloeDisocclusion.png"))
+pixels = np.array(Image.open("INSERT_SOURCE_FILENAME"))
 height, width, channels = pixels.shape
 
 newImage = pixels.copy()
@@ -92,4 +92,4 @@ for x in range(width):
 
 
 # IMAGE OUTPUT
-Image.fromarray(newImage, 'RGBA').save("../images/aloe/results/aloe8DirNoDepth.png", 'PNG')
+Image.fromarray(newImage, 'RGBA').save("INSERT_RESULT_FILENAME", 'PNG')

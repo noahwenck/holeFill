@@ -1,16 +1,16 @@
 import sys
 from PIL import Image
 import numpy as np
-sys.path.append('../')
+
+sys.path.append("../")
 
 # IMAGE INPUT
-pixels = np.array(Image.open("images/largeDisocclusion/disocclusionLarge.png"))
+pixels = np.array(Image.open("INSERT_SOURCE_FILENAME"))
 height, width, channels = pixels.shape
 
-depth = np.array(Image.open("images/depth2.png"))
+depth = np.array(Image.open("INSERT_DEPTH_FILENAME"))
 
 newImage = pixels.copy()
-
 
 for x in range(width):
     for y in range(height):
@@ -35,12 +35,11 @@ for x in range(width):
                     break
 
             minDepth = min(top, bottom)
-            print("topDistance="+str(top)+", bottomDistance="+str(bottom))
+            print("topDistance=" + str(top) + ", bottomDistance=" + str(bottom))
             if top == minDepth:
                 newImage[y][x] = pixels[y - topPos][x]
             elif bottom == minDepth:
                 newImage[y][x] = pixels[y + bottomPos][x]
 
-
 # IMAGE OUTPUT
-Image.fromarray(newImage, 'RGBA').save("images/largeDisocclusion/CameraMovementLeftRightResult.png", 'PNG')
+Image.fromarray(newImage, 'RGBA').save("INSERT_RESULT_FILENAME", 'PNG')

@@ -328,7 +328,7 @@ def toleranceDepthFill(pixels, depth):
                     newImage[y][x] = pixels[y + diagBLPos][x - diagBLPos]
 
 
-def toleranceAveragedDepthFill(pixels, depth):
+def middleGroundAverage(pixels, depth):
     height, width, channels = pixels.shape
     newImage = pixels.copy()
 
@@ -442,61 +442,54 @@ def toleranceAveragedDepthFill(pixels, depth):
                     "tr": diagTRPos
                 }
 
-                # Find the closest depth
-                frontDepth = -1
-                for direction in directionDepth.keys():
-                    currentDepth = directionDepth.get(direction)
-                    if currentDepth > frontDepth:
-                        frontDepth = currentDepth
-
-                # if frontDepth is still -1, cry
-
-                frontDepth = frontDepth - (frontDepth * delta)
-
-                # Find the nearest mid-ground depth
-                # Prevents using a mid-depth that is extremely far away
-                directionsToKeep = []
-                for direction in directionDistance.keys():
-                    if directionDepth.get(direction) >= frontDepth:
-                        directionsToKeep.append(direction)
-
+                # Find first closet pixel
                 shortestDirection = sys.maxsize
                 shortestDirectionMapping = "t"
                 for direction in directionDistance.keys():
-                    if (direction not in directionsToKeep and
-                            directionDistance.get(direction) <= shortestDirection):
-                        directionsToKeep.append(direction)
+                    if directionDistance.get(direction) < shortestDirection:
                         shortestDirection = directionDistance.get(direction)
                         shortestDirectionMapping = direction
 
-                midDepthLower = directionDepth.get(shortestDirectionMapping) - (
+                # Find all pixels that are within our delta of this first pixel
+                firstDepthUpper = directionDepth.get(shortestDirectionMapping) + (
                         directionDepth.get(shortestDirectionMapping) * delta)
+                firstDepthLower = directionDepth.get(shortestDirectionMapping) - (
+                        directionDepth.get(shortestDirectionMapping) * delta)
+                firstDepthDirections = []
                 for direction in directionDepth.keys():
-                    if (direction not in directionsToKeep and
-                            frontDepth > directionDepth.get(direction) >= midDepthLower):
-                        directionsToKeep.append(direction)
+                    if firstDepthLower <= directionDepth.get(direction) < firstDepthUpper:
+                        firstDepthDirections.append(direction)
 
-                directionsToAverage = []
-                for direction in directionsToKeep:
-                    currentDepth = directionDepth.get(direction)
-                    if midDepthLower <= currentDepth <= frontDepth:
-                        directionsToAverage.append(direction)
+                # Find the next closest pixel, not considering any that are in our first depth range
+                nextShortestDirection = sys.maxsize
+                nextShortestDirectionMapping = "t"
+                for direction in directionDistance.keys():
+                    if (direction not in firstDepthDirections and
+                            directionDistance.get(direction) < nextShortestDirection):
+                        nextShortestDirection = directionDistance.get(direction)
+                        nextShortestDirectionMapping = direction
 
-                # # Find the closest depth that is beyond the tolerance
-                # midDepthUpper = -1
-                # for direction in directionDepth.keys():
-                #     currentDepth = directionDepth.get(direction)
-                #     if midDepthUpper < currentDepth < frontDepth:
-                #         midDepthUpper = currentDepth
-                #
-                # # Gather a list of directions that are within the mid-ground tolerance,
-                # # the values of these directions are what we will average
-                # directionsToAverage = []
-                # midDepthLower = midDepthUpper - (midDepthUpper * delta)
-                # for direction in directionDepth.keys():
-                #     currentDepth = directionDepth.get(direction)
-                #     if midDepthLower <= currentDepth <= midDepthUpper:
-                #         directionsToAverage.append(direction)
+                # In case all directions are already in firstDepthDirections
+                if nextShortestDirection != sys.maxsize:
+
+                    # Find all pixels that are within our delta of this next pixel
+                    secondDepthUpper = directionDepth.get(nextShortestDirectionMapping) + (
+                            directionDepth.get(nextShortestDirectionMapping) * delta)
+                    secondDepthLower = directionDepth.get(nextShortestDirectionMapping) - (
+                            directionDepth.get(nextShortestDirectionMapping) * delta)
+                    secondDepthDirections = []
+                    for direction in directionDepth.keys():
+                        if (direction not in firstDepthDirections and
+                                secondDepthLower <= directionDepth.get(direction) <= secondDepthUpper):
+                            secondDepthDirections.append(direction)
+
+                    # Whichever upper limit is highest, use those values for the average
+                    if firstDepthUpper < secondDepthUpper:
+                        directionsToAverage = firstDepthDirections
+                    else:
+                        directionsToAverage = secondDepthDirections
+                else:
+                    directionsToAverage = firstDepthDirections
 
                 # this is fine
                 averageColor = [0, 0, 0, 0]

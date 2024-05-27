@@ -4,10 +4,10 @@ import numpy as np
 sys.path.append('../')
 
 # IMAGE INPUT
-pixels = np.array(Image.open("images/largeDisocclusion/disocclusionLarge.png"))
+pixels = np.array(Image.open("INSERT_SOURCE_FILENAME"))
 height, width, channels = pixels.shape
 
-depth = np.array(Image.open("images/depth.png"))
+depth = np.array(Image.open("INSERT_DEPTH_FILENAME"))
 
 newImage = pixels.copy()
 
@@ -121,4 +121,4 @@ for x in range(width):
                 newImage[y][x] = pixels[y + diagBLPos][x - diagBLPos]
 
 # IMAGE OUTPUT
-Image.fromarray(newImage, 'RGBA').save("images/largeDisocclusion/toleranceDepthResult.png", 'PNG')
+Image.fromarray(newImage, 'RGBA').save("INSERT_RESULT_FILENAME", 'PNG')

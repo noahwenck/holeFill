@@ -4,10 +4,10 @@ import numpy as np
 sys.path.append('../')
 
 # IMAGE INPUT
-pixels = np.array(Image.open("images/largeDisocclusion/disocclusionLarge.png"))
+pixels = np.array(Image.open("INSERT_SOURCE_FILENAME"))
 height, width, channels = pixels.shape
 
-depth = np.array(Image.open("images/depth.png"))
+depth = np.array(Image.open("INSERT_DEPTH_FILENAME"))
 
 newImage = pixels.copy()
 
@@ -29,28 +29,28 @@ for x in range(width):
             # Right
             for sourceX in range(x, width):
                 if pixels[y][sourceX][3] > 0:
-                    right = depth[y][sourceX]
+                    right = depth[y][sourceX][0]
                     rightPos = sourceX - x
                     break
 
             # Left
             for sourceX in range(x, 0, -1):
                 if pixels[y][sourceX][3] > 0:
-                    left = depth[y][sourceX]
+                    left = depth[y][sourceX][0]
                     leftPos = x - sourceX
                     break
 
             # Top
             for sourceY in range(y, 0, -1):
                 if pixels[sourceY][x][3] > 0:
-                    top = depth[sourceY][x]
+                    top = depth[sourceY][x][0]
                     topPos = y - sourceY
                     break
 
             # Bottom
             for sourceY in range(y, height):
                 if pixels[sourceY][x][3] > 0:
-                    bottom = depth[sourceY][x]
+                    bottom = depth[sourceY][x][0]
                     bottomPos = sourceY - y
                     break
 
@@ -58,7 +58,7 @@ for x in range(width):
             for sourceDiagR in range(x, width):
                 sourceDiagT = y - (sourceDiagR - x)
                 if pixels[sourceDiagT][sourceDiagR][3] > 0:
-                    diagTR = depth[sourceDiagT][sourceDiagR]
+                    diagTR = depth[sourceDiagT][sourceDiagR][0]
                     diagTRPos = sourceDiagR - x
                     break
 
@@ -66,7 +66,7 @@ for x in range(width):
             for sourceDiagL in range(x, 0, -1):
                 sourceDiagT = y - (x - sourceDiagL)
                 if pixels[sourceDiagT][sourceDiagL][3] > 0:
-                    diagTL = depth[sourceDiagT][sourceDiagL]
+                    diagTL = depth[sourceDiagT][sourceDiagL][0]
                     diagTLPos = x - sourceDiagL
                     break
 
@@ -74,7 +74,7 @@ for x in range(width):
             for sourceDiagR in range(x, width):
                 sourceDiagB = y + (sourceDiagR - x)
                 if pixels[sourceDiagB][sourceDiagR][3] > 0:
-                    diagBR = depth[sourceDiagB][sourceDiagR]
+                    diagBR = depth[sourceDiagB][sourceDiagR][0]
                     diagBRPos = sourceDiagR - x
                     break
 
@@ -82,7 +82,7 @@ for x in range(width):
             for sourceDiagL in range(x, 0, -1):
                 sourceDiagB = y + (x - sourceDiagL)
                 if pixels[sourceDiagB][sourceDiagL][3] > 0:
-                    diagBL = depth[sourceDiagB][sourceDiagL]
+                    diagBL = depth[sourceDiagB][sourceDiagL][0]
                     diagBLPos = x - sourceDiagL
                     break
 
@@ -106,4 +106,4 @@ for x in range(width):
 
 
 # IMAGE OUTPUT
-Image.fromarray(newImage, 'RGBA').save("images/largeDisocclusion/baseDepthResult.png", 'PNG')
+Image.fromarray(newImage, 'RGBA').save("INSERT_RESULT_FILENAME", 'PNG')

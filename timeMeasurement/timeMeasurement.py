@@ -12,7 +12,7 @@ numIterations = 50
 setupStatement = """
 import numpy as np
 from PIL import Image
-from scriptFunctions import (depthHoleFill, noDepthHoleFill, cameraMovementLeftRight, toleranceDepthFill, toleranceAveragedDepthFill)
+from scriptFunctions import (depthHoleFill, noDepthHoleFill, cameraMovementLeftRight, toleranceDepthFill, middleGroundAverage)
 pixels = np.array(Image.open("IMAGEPATH"))
 #depth = np.array(Image.open("IMAGEPATH"))
 """
@@ -33,8 +33,8 @@ toleranceDepthFill = """
 toleranceDepthFill(pixels, depth)
 """
 
-toleranceAveragedDepthFill = """
-toleranceAveragedDepthFill(pixels, depth)
+MiddleGroundAverageFill = """
+middleGroundAverage(pixels, depth)
 """
 
 holeFillWithDepthTimes = timeit.repeat(setup=setupStatement,
@@ -53,10 +53,10 @@ toleranceDepthFillTimes = timeit.repeat(setup=setupStatement,
                                         stmt=toleranceDepthFill,
                                         repeat=numIterations,
                                         number=1)
-toleranceAveragedDepthFillTimes = timeit.repeat(setup=setupStatement,
-                                                stmt=toleranceAveragedDepthFill,
-                                                repeat=numIterations,
-                                                number=1)
+middleGroundAverageFillTimes = timeit.repeat(setup=setupStatement,
+                                             stmt=MiddleGroundAverageFill,
+                                             repeat=numIterations,
+                                             number=1)
 
 logFile.write("\n=========================\n" +
               str(datetime.datetime.now()) + "\n" +
@@ -83,6 +83,6 @@ logFile.write("Avg: " + str(sum(toleranceDepthFillTimes)/len(toleranceDepthFillT
 logFile.write("Max: " + str(max(toleranceDepthFillTimes)) + "\n")
 
 logFile.write("\n--- Tolerance Averaged Depth --- \n")
-logFile.write("Min: " + str(min(toleranceAveragedDepthFillTimes)) + "\n")
-logFile.write("Avg: " + str(sum(toleranceAveragedDepthFillTimes)/len(toleranceAveragedDepthFillTimes)) + "\n")
-logFile.write("Max: " + str(max(toleranceAveragedDepthFillTimes)) + "\n")
+logFile.write("Min: " + str(min(middleGroundAverageFillTimes)) + "\n")
+logFile.write("Avg: " + str(sum(middleGroundAverageFillTimes)/len(middleGroundAverageFillTimes)) + "\n")
+logFile.write("Max: " + str(max(middleGroundAverageFillTimes)) + "\n")
